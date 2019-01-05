@@ -1,16 +1,31 @@
 # using the internal 48MHz hifreq osc
 #set_io clk       35
-set_io flash_clk 15
-set_io flash_csn 16
-set_io flash_io0 17
-set_io flash_io1 14
-set_io leds[0]   38
-set_io leds[1]   42
-set_io leds[2]   36
+set_io -nowarn flash_clk 15
+set_io -nowarn flash_csn 16
+set_io -nowarn flash_io0 17
+set_io -nowarn flash_io1 14
+
+# for the RGB LED on board
+set_io leds[0]   41
+set_io leds[1]   39
+set_io leds[2]   40
+# For IO on a random GPIO port
+#set_io leds[0]   38
+#set_io leds[1]   42
+#set_io leds[2]   36
+#set_io leds[2]   36
 set_io leds[3]   43
 set_io leds[4]   34
 set_io leds[5]   37
 set_io leds[6]   31
 set_io leds[7]   32
-set_io uart_rx   12
-set_io uart_tx   21
+
+# For IO on a random GPIO port
+#set_io uart_rx   12
+#set_io uart_tx   21
+
+# For IO on the FTDI port
+# (need to drive flash_csn high to turn off flash chip)
+set_io uart_tx 14 # FPGA transmit to USB
+set_io uart_rx 15 # FPGA receive from USB
+

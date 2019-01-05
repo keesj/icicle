@@ -1,3 +1,3 @@
 // Defines for Upduino
-`define SPI_FLASH
+`undef SPI_FLASH
 `define INTERNAL_OSC

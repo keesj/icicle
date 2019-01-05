@@ -25,6 +25,11 @@ module top (
     output logic flash_csn,
     inout flash_io0,
     inout flash_io1,
+`else
+`ifdef ICE40
+    // still need the flash csn pin to turn off the flash chip
+    output logic flash_csn,
+`endif
 `endif
 
     /* LEDs */
@@ -73,6 +78,13 @@ module top (
         .O({flash_io1_out, flash_io0_out})
     );
 `endif
+
+`ifdef ICE40
+    // upduino, no SPI_FLASH. still drive the flash_csn pin high
+    // this allows the serial port to share the same pins to the FTDI chip
+    assign flash_csn = 1;
+`endif
+
 `endif
 
     logic pll_clk;
