@@ -2,7 +2,6 @@
 
 QUIET    = -q
 PLL      = pll.sv
-SRC      = $(sort $(wildcard *.sv) $(PLL))
 TOP      = top
 SV       = $(TOP).sv
 YS       = $(ARCH).ys
@@ -44,10 +43,11 @@ progmem.hex: progmem.bin
 progmem: progmem.o start.o progmem.lds
 	$(LD) $(LDFLAGS) -o $@ progmem.o start.o
 
-$(BLIF) $(JSON): $(YS) $(SRC) progmem_syn.hex progmem.hex defines.sv
-	yosys $(QUIET) $<
+$(BLIF) $(JSON): $(YS) $(PLL) progmem_syn.hex defines.sv boards/$(BOARD).mk
+	yosys $(QUIET) -E .$(basename $@).d $<
+-include .*.d
 
-syntax: $(SRC) progmem_syn.hex defines.sv
+syntax: $(PLL) progmem_syn.hex defines.sv
 	iverilog -D$(shell echo $(ARCH) | tr 'a-z' 'A-Z') -Wall -t null -g2012 $(YS_ICE40) $(SV)
 
 defines.sv: boards/$(BOARD)-defines.sv
