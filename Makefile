@@ -22,7 +22,7 @@ ASFLAGS  = -march=rv32i -mabi=ilp32
 LD       = $(TARGET)-gcc
 LDFLAGS  = $(CFLAGS) -Wl,-Tprogmem.lds
 CC       = $(TARGET)-gcc
-CFLAGS   = -march=rv32i -mabi=ilp32 -Wall -Wextra -pedantic -DFREQ=$(FREQ_PLL)000000 -Os -ffreestanding -nostartfiles -g
+CFLAGS   = -march=rv32i -mabi=ilp32 -Wall -Wextra -pedantic -DFREQ=$(FREQ_CPU)000000 -Os -ffreestanding -nostartfiles -g
 OBJCOPY  = $(TARGET)-objcopy
 
 include boards/$(BOARD).mk
@@ -44,8 +44,9 @@ progmem.hex: progmem.bin
 progmem: progmem.o start.o progmem.lds
 	$(LD) $(LDFLAGS) -o $@ progmem.o start.o
 
-$(BLIF) $(JSON): $(YS) $(SRC) progmem_syn.hex defines.sv
-	yosys $(QUIET) $<
+$(BLIF) $(JSON): $(YS) top.sv $(PLL) progmem_syn.hex defines.sv
+	yosys $(QUIET) -E .$(basename $@).d $<
+-include .*.d
 
 syntax: $(SRC) progmem_syn.hex defines.sv
 	iverilog -D$(shell echo $(ARCH) | tr 'a-z' 'A-Z') -Wall -t null -g2012 $(YS_ICE40) $(SV)
