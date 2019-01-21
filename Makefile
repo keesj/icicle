@@ -44,7 +44,7 @@ progmem.hex: progmem.bin
 progmem: progmem.o start.o progmem.lds
 	$(LD) $(LDFLAGS) -o $@ progmem.o start.o
 
-$(BLIF) $(JSON): $(YS) $(SRC) progmem_syn.hex progmem.hex defines.sv
+$(BLIF) $(JSON): $(YS) $(SRC) progmem_syn.hex defines.sv
 	yosys $(QUIET) $<
 
 syntax: $(SRC) progmem_syn.hex defines.sv
