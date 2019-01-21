@@ -1,8 +1,8 @@
 set_io -nowarn clk       B2
 set_io -nowarn flash_clk G7
 set_io -nowarn flash_csn F7
-set_io -nowarn flash_io0 G6
-set_io -nowarn flash_io1 H7
+set_io -nowarn flash_io0 H7 # MISO
+set_io -nowarn flash_io1 G6 # MOSI
 set_io -nowarn leds[0]   B3
 set_io -nowarn leds[1]   A2
 set_io -nowarn leds[2]   A1
@@ -15,6 +15,14 @@ set_io -nowarn leds[7]   D1
 set_io -nowarn uart_tx   E1 # pin_9
 set_io -nowarn uart_rx   E2 # pin_8
 
-set_io -nowarn pin_usb_pu A3
-set_io -nowarn pin_usbp B4
-set_io -nowarn pin_usbn A4
+set_io -nowarn usb_pu A3
+set_io -nowarn usb_p B4
+set_io -nowarn usb_n A4
+
+set_io -nowarn pin_14 H9
+set_io -nowarn pin_15 D9
+set_io -nowarn pin_16 D8
+set_io -nowarn pin_17 C9
+set_io -nowarn pin_18 A9
+set_io -nowarn pin_19 B8
+set_io -nowarn pin_20 A8
