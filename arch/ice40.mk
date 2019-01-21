@@ -1,6 +1,7 @@
 PNR     ?= nextpnr
 PCF      = boards/$(BOARD).pcf
-FREQ_PLL = 24
+FREQ_PLL ?= 24
+FREQ_CPU ?= $(FREQ_PLL)
 
 progmem_syn.hex:
 	icebram -g 32 2048 > $@
@@ -13,7 +14,7 @@ $(ASC_SYN): $(BLIF) $(PCF)
 	arachne-pnr $(QUIET) -d $(DEVICE) -P $(PACKAGE) -o $@ -p $(PCF) $<
 else
 $(ASC_SYN): $(JSON) $(PCF)
-	nextpnr-ice40 $(QUIET) --$(SPEED)$(DEVICE) --package $(PACKAGE) --json $< --pcf $(PCF) --freq $(FREQ_PLL) --asc $@
+	nextpnr-ice40 --$(SPEED)$(DEVICE) --package $(PACKAGE) --json $< --pcf $(PCF) --freq $(FREQ_CPU) --asc $@
 endif
 
 $(ASC): $(ASC_SYN) progmem_syn.hex progmem.hex
@@ -27,7 +28,7 @@ $(BIN): $(ASC)
 	icepack $< $@
 
 $(TIME_RPT): $(ASC_SYN) $(PCF)
-	icetime -t -m -d $(SPEED)$(DEVICE) -P $(PACKAGE) -p $(PCF) -c $(FREQ_PLL) -r $@ $<
+	icetime -t -m -d $(SPEED)$(DEVICE) -P $(PACKAGE) -p $(PCF) -c $(FREQ_CPU) -r $@ $<
 
 $(STAT): $(ASC_SYN)
 	icebox_stat $< > $@
