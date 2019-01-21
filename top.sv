@@ -6,6 +6,7 @@
 `include "rv32.sv"
 `include "sync.sv"
 `include "timer.sv"
+`include "usb_serial_mem.v"
 `include "uart.sv"
 
 `ifdef SPI_FLASH
@@ -30,9 +31,20 @@ module top (
     /* LEDs */
     output logic [7:0] leds,
 
+    output pin_17,
+    output pin_18,
+    output pin_19,
+    output pin_20,
+`ifdef USB_SERIAL
+    /* USB ACM serial port interface */
+    inout usb_p,
+    inout usb_n,
+    output usb_pu
+`else
     /* UART */
     input uart_rx,
     output logic uart_tx
+`endif
 );
 
 `ifdef INTERNAL_OSC
@@ -78,11 +90,29 @@ module top (
     logic pll_clk;
     logic pll_locked_async;
 
+`ifdef USB_SERIAL
+    // use the PLL to generate a 48 MHz clock, then scale
+    // it to create a lower speed clock
+    wire clk_48mhz;
+    assign pin_17 = pll_clk;
+    assign pin_18 = clk_48mhz;
+    pll pll(
+        .clock_in(clk),
+        .clock_out(clk_48mhz),
+        .locked(pll_locked_async)
+    );
+    wire clk_24mhz;
+    wire clk_12mhz;
+    always @(posedge clk_48mhz) clk_24mhz = !clk_24mhz;
+    always @(posedge clk_24mhz) clk_12mhz = !clk_12mhz;
+    assign pll_clk = clk_12mhz;
+`else
     pll pll (
         .clock_in(clk),
         .clock_out(pll_clk),
         .locked(pll_locked_async)
     );
+`endif
 
     logic pll_locked;
     logic reset;
@@ -257,6 +287,26 @@ module top (
     logic [31:0] uart_read_value;
     logic uart_ready;
 
+`ifdef USB_SERIAL
+    usb_serial_mem usb_serial_dev(
+	.clk(pll_clk),
+	.clk_48mhz(clk_48mhz),
+	.reset(reset),
+	.debug({pin_19, pin_20}),
+	// physical layer
+	.usb_p(usb_p),
+	.usb_n(usb_n),
+	.usb_pu(usb_pu),
+	// memory bus
+        .address_in(mem_address),
+        .sel_in(uart_sel),
+        .read_in(mem_read),
+        .read_value_out(uart_read_value),
+        .write_mask_in(mem_write_mask),
+        .write_value_in(mem_write_value),
+        .ready_out(uart_ready)
+    );
+`else
     uart uart (
         .clk(pll_clk),
         .reset(reset),
@@ -274,6 +324,7 @@ module top (
         .write_value_in(mem_write_value),
         .ready_out(uart_ready)
     );
+`endif
 
     logic [31:0] timer_read_value;
     logic timer_ready;
